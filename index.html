@@ -202,6 +202,16 @@
             }
         }
         
+        .data-note {
+            font-size: 0.8rem;
+            color: #aaddff;
+            font-style: italic;
+            margin-top: 15px;
+            padding: 5px;
+            background: rgba(0, 10, 30, 0.5);
+            border-radius: 5px;
+        }
+        
         .signup-form {
             max-width: 500px;
             margin: 30px auto;
@@ -529,7 +539,7 @@
             
             <div class="signup-form">
                 <p>Be the first to experience Bluemins when we launch. Sign up for exclusive offers and updates!</p>
-                <form id="notify-form">
+                <form id="notify-form" action="https://formspree.io/f/xblgvwya" method="POST">
                     <div class="form-group">
                         <label for="name">Full Name*</label>
                         <input type="text" id="name" name="name" placeholder="Your Name" required>
@@ -550,6 +560,9 @@
                         <input type="checkbox" id="terms" name="terms" required>
                         <label for="terms">I agree to receive updates about Bluemins products</label>
                     </div>
+                    <input type="hidden" name="_subject" value="New Bluemins Registration">
+                    <input type="hidden" name="_replyto" value="contact@bluemins.life">
+                    <input type="hidden" name="_next" value="https://yourusername.github.io/bluemins/thanks.html">
                     <button type="submit" id="notify-button">Register for Updates</button>
                 </form>
             </div>
@@ -578,7 +591,8 @@
                 <h2>Thank You for Registering!</h2>
                 <p>You're now on our list to receive exclusive updates about Bluemins packaged drinking water.</p>
                 <p>We'll keep you informed about our launch and special offers.</p>
-                <p><i class="fas fa-paper-plane"></i> A confirmation has been sent to <strong>contact@bluemins.life</strong></p>
+                <p><i class="fas fa-save"></i> Your registration has been saved successfully.</p>
+                <p class="data-note">Admin: Registration data is stored locally and can be exported with the export button.</p>
                 <button id="continue-playing">Continue Playing</button>
             </div>
         </div>
@@ -587,16 +601,13 @@
     <script>
         // Game variables
         const player = document.getElementById('player');
-        const gameContainer = document.getElementById('game-container');
         const scoreDisplay = document.getElementById('score-display');
         const infoDisplay = document.getElementById('info-display');
         
-        const containerWidth = window.innerWidth;
-        const containerHeight = window.innerHeight;
         const playerWidth = 80;
         
         let score = 0;
-        let playerPosition = containerWidth / 2;
+        let playerPosition = window.innerWidth / 2;
         let keysPressed = {};
         
         // Create background elements
@@ -681,37 +692,82 @@
             
             // Function to send email notification
             function sendEmailNotification(name, email, phone, location) {
-                // In a real implementation, this would connect to a server-side API
-                // Here we're simulating the email being sent
-                console.log("Email would be sent to contact@bluemins.life with:", { name, email, phone, location });
+                // Store the submission data in localStorage
+                const timestamp = new Date().toISOString();
+                const submission = {
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    location: location,
+                    timestamp: timestamp
+                };
                 
-                // NOTE: In a production environment, you would need a server-side component to handle this
-                // JavaScript alone cannot send emails from the browser due to security restrictions
-                // You would typically submit this data to a backend service via AJAX/fetch
+                // Get existing submissions or initialize empty array
+                let submissions = [];
+                const storedSubmissions = localStorage.getItem('blueminsSubmissions');
+                if (storedSubmissions) {
+                    submissions = JSON.parse(storedSubmissions);
+                }
                 
-                // Example of what the backend call would look like:
-                /*
-                fetch('/api/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        name: name,
-                        email: email,
-                        phone: phone,
-                        location: location,
-                        recipient: 'contact@bluemins.life'
-                    }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+                // Add new submission
+                submissions.push(submission);
+                
+                // Save back to localStorage
+                localStorage.setItem('blueminsSubmissions', JSON.stringify(submissions));
+                
+                // Add a button to export data
+                if (!document.getElementById('export-data')) {
+                    const exportButton = document.createElement('button');
+                    exportButton.id = 'export-data';
+                    exportButton.textContent = 'Export Registration Data';
+                    exportButton.style.position = 'fixed';
+                    exportButton.style.bottom = '80px';
+                    exportButton.style.right = '20px';
+                    exportButton.style.zIndex = '100';
+                    exportButton.style.padding = '10px';
+                    exportButton.style.backgroundColor = '#005588';
+                    exportButton.style.color = 'white';
+                    exportButton.style.border = 'none';
+                    exportButton.style.borderRadius = '5px';
+                    exportButton.style.cursor = 'pointer';
+                    
+                    exportButton.addEventListener('click', function() {
+                        exportRegistrationData();
+                    });
+                    
+                    document.body.appendChild(exportButton);
+                }
+                
+                console.log("Submission saved:", submission);
+                console.log("Total registrations:", submissions.length);
+            }
+            
+            // Function to export registration data
+            function exportRegistrationData() {
+                const storedSubmissions = localStorage.getItem('blueminsSubmissions');
+                if (!storedSubmissions) {
+                    alert('No registration data found.');
+                    return;
+                }
+                
+                const submissions = JSON.parse(storedSubmissions);
+                
+                // Format as CSV
+                let csvContent = 'Name,Email,Phone,Location,Timestamp\n';
+                submissions.forEach(sub => {
+                    csvContent += `"${sub.name}","${sub.email}","${sub.phone}","${sub.location}","${sub.timestamp}"\n`;
                 });
-                */
+                
+                // Create download link
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.setAttribute('href', url);
+                a.setAttribute('download', 'bluemins_registrations.csv');
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
             }
             
             // Modal controls
