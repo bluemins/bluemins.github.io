@@ -494,6 +494,12 @@
             color: var(--accent-color);
             margin-top: 0;
         }
+        
+        /* Add the highlight-form animation */
+        @keyframes highlight-form {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 136, 204, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(0, 195, 255, 0.9); }
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
@@ -599,60 +605,29 @@
     </div>
 
     <script>
-        // Game variables
-        const player = document.getElementById('player');
-        const scoreDisplay = document.getElementById('score-display');
-        const infoDisplay = document.getElementById('info-display');
-        
-        const playerWidth = 80;
-        
+        // Game initialization and global variables
+        let gameContainer, containerWidth, containerHeight, player, scoreDisplay, infoDisplay;
         let score = 0;
-        let playerPosition = window.innerWidth / 2;
+        let playerPosition = 0;
         let keysPressed = {};
-        
-        // Create background elements
-        function createBackground() {
-            // Create stars
-            for (let i = 0; i < 100; i++) {
-                createStar();
-            }
-            
-            // Create bubbles
-            for (let i = 0; i < 20; i++) {
-                createBubble();
-            }
-        }
-        
-        function createStar() {
-            const star = document.createElement('div');
-            star.className = 'star';
-            const size = Math.random() * 3;
-            star.style.width = size + 'px';
-            star.style.height = size + 'px';
-            star.style.left = Math.random() * containerWidth + 'px';
-            star.style.top = Math.random() * containerHeight + 'px';
-            star.style.opacity = Math.random() * 0.9 + 0.1;
-            gameContainer.appendChild(star);
-        }
-        
-        function createBubble() {
-            const bubble = document.createElement('div');
-            bubble.className = 'bubble';
-            const size = Math.random() * 50 + 10;
-            bubble.style.width = size + 'px';
-            bubble.style.height = size + 'px';
-            bubble.style.left = Math.random() * containerWidth + 'px';
-            bubble.style.top = Math.random() * containerHeight + 'px';
-            bubble.style.animationDelay = Math.random() * 5 + 's';
-            bubble.style.animationDuration = Math.random() * 10 + 5 + 's';
-            gameContainer.appendChild(bubble);
-        }
-        
+        const playerWidth = 80;
+
         // Initialize game
         function initGame() {
-            createBackground();
+            // Get DOM elements
+            gameContainer = document.getElementById('game-area');
+            containerWidth = gameContainer.clientWidth;
+            containerHeight = gameContainer.clientHeight;
+            player = document.getElementById('player');
+            scoreDisplay = document.getElementById('score-display');
+            infoDisplay = document.getElementById('info-display');
+            
+            // Set initial player position
             playerPosition = containerWidth / 2;
             player.style.left = (playerPosition - playerWidth / 2) + 'px';
+            
+            // Create background elements
+            createBackground();
             
             // Event listeners
             document.addEventListener('keydown', (e) => {
@@ -668,149 +643,47 @@
             setInterval(createWaterDrop, 1500);
             
             // Set up form submission
-            document.getElementById('notify-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const name = document.getElementById('name').value.trim();
-                const email = document.getElementById('email').value.trim();
-                const phone = document.getElementById('phone').value.trim();
-                const location = document.getElementById('location').value.trim();
-                
-                if (name && email && phone && location && validateEmail(email)) {
-                    // Send email notification
-                    sendEmailNotification(name, email, phone, location);
-                    
-                    // Show thank you modal
-                    document.getElementById('thank-you-modal').style.display = 'flex';
-                    
-                    // Reset the form
-                    document.getElementById('notify-form').reset();
-                } else {
-                    alert("Please fill in all required fields with valid information.");
-                }
-            });
-            
-            // Function to send email notification
-            function sendEmailNotification(name, email, phone, location) {
-                // Store the submission data in localStorage
-                const timestamp = new Date().toISOString();
-                const submission = {
-                    name: name,
-                    email: email,
-                    phone: phone,
-                    location: location,
-                    timestamp: timestamp
-                };
-                
-                // Get existing submissions or initialize empty array
-                let submissions = [];
-                const storedSubmissions = localStorage.getItem('blueminsSubmissions');
-                if (storedSubmissions) {
-                    submissions = JSON.parse(storedSubmissions);
-                }
-                
-                // Add new submission
-                submissions.push(submission);
-                
-                // Save back to localStorage
-                localStorage.setItem('blueminsSubmissions', JSON.stringify(submissions));
-                
-                // Add a button to export data
-                if (!document.getElementById('export-data')) {
-                    const exportButton = document.createElement('button');
-                    exportButton.id = 'export-data';
-                    exportButton.textContent = 'Export Registration Data';
-                    exportButton.style.position = 'fixed';
-                    exportButton.style.bottom = '80px';
-                    exportButton.style.right = '20px';
-                    exportButton.style.zIndex = '100';
-                    exportButton.style.padding = '10px';
-                    exportButton.style.backgroundColor = '#005588';
-                    exportButton.style.color = 'white';
-                    exportButton.style.border = 'none';
-                    exportButton.style.borderRadius = '5px';
-                    exportButton.style.cursor = 'pointer';
-                    
-                    exportButton.addEventListener('click', function() {
-                        exportRegistrationData();
-                    });
-                    
-                    document.body.appendChild(exportButton);
-                }
-                
-                console.log("Submission saved:", submission);
-                console.log("Total registrations:", submissions.length);
+            setupFormHandlers();
+        }
+
+        // Create background elements
+        function createBackground() {
+            // Create stars
+            for (let i = 0; i < 100; i++) {
+                createStar();
             }
             
-            // Function to export registration data
-            function exportRegistrationData() {
-                const storedSubmissions = localStorage.getItem('blueminsSubmissions');
-                if (!storedSubmissions) {
-                    alert('No registration data found.');
-                    return;
-                }
-                
-                const submissions = JSON.parse(storedSubmissions);
-                
-                // Format as CSV
-                let csvContent = 'Name,Email,Phone,Location,Timestamp\n';
-                submissions.forEach(sub => {
-                    csvContent += `"${sub.name}","${sub.email}","${sub.phone}","${sub.location}","${sub.timestamp}"\n`;
-                });
-                
-                // Create download link
-                const blob = new Blob([csvContent], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.setAttribute('href', url);
-                a.setAttribute('download', 'bluemins_registrations.csv');
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+            // Create bubbles
+            for (let i = 0; i < 20; i++) {
+                createBubble();
             }
-            
-            // Modal controls
-            document.querySelector('.close-modal').addEventListener('click', function() {
-                document.getElementById('thank-you-modal').style.display = 'none';
-            });
-            
-            document.getElementById('continue-playing').addEventListener('click', function() {
-                document.getElementById('thank-you-modal').style.display = 'none';
-            });
-            
-            // Toggle registration form
-            document.getElementById('register-button').addEventListener('click', function() {
-                // Scroll to the registration form
-                const formElement = document.querySelector('.signup-form');
-                formElement.scrollIntoView({ behavior: 'smooth' });
-                
-                // Highlight the form
-                formElement.style.animation = 'none';
-                setTimeout(() => {
-                    formElement.style.animation = 'highlight-form 1.5s';
-                }, 10);
-            });
-            
-            // Add highlight animation dynamically
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes highlight-form {
-                    0%, 100% { box-shadow: 0 0 20px rgba(0, 136, 204, 0.5); }
-                    50% { box-shadow: 0 0 30px rgba(0, 195, 255, 0.9); }
-                }
-            `;
-            document.head.appendChild(style);
-            
-            // Remove countdown functionality as requested
         }
-        
-        // Email validation helper
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
+
+        function createStar() {
+            const star = document.createElement('div');
+            star.className = 'star';
+            const size = Math.random() * 3;
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+            star.style.left = Math.random() * containerWidth + 'px';
+            star.style.top = Math.random() * containerHeight + 'px';
+            star.style.opacity = Math.random() * 0.9 + 0.1;
+            gameContainer.appendChild(star);
         }
-        
+
+        function createBubble() {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            const size = Math.random() * 50 + 10;
+            bubble.style.width = size + 'px';
+            bubble.style.height = size + 'px';
+            bubble.style.left = Math.random() * containerWidth + 'px';
+            bubble.style.top = Math.random() * containerHeight + 'px';
+            bubble.style.animationDelay = Math.random() * 5 + 's';
+            bubble.style.animationDuration = Math.random() * 10 + 5 + 's';
+            gameContainer.appendChild(bubble);
+        }
+
         // Create water drop
         function createWaterDrop() {
             const drop = document.createElement('div');
@@ -832,7 +705,7 @@
             
             gameContainer.appendChild(drop);
         }
-        
+
         // Update game state
         function updateGame() {
             // Move player
@@ -848,7 +721,7 @@
             // Move water drops
             const drops = document.querySelectorAll('.water-drop');
             drops.forEach(drop => {
-                const currentTop = parseFloat(drop.style.top);
+                const currentTop = parseFloat(drop.style.top || '0');
                 const speed = parseFloat(drop.dataset.speed);
                 drop.style.top = (currentTop + speed) + 'px';
                 
@@ -875,7 +748,7 @@
                 }
             });
         }
-        
+
         // Check collision between player and water drop
         function checkCollision(drop) {
             const dropRect = drop.getBoundingClientRect();
@@ -888,7 +761,7 @@
                 dropRect.bottom > playerRect.top
             );
         }
-        
+
         // Create splash effect
         function createSplash(drop) {
             const rect = drop.getBoundingClientRect();
@@ -924,15 +797,147 @@
                 }, 500);
             }
         }
-        
-        // Removed countdown timer function as requested
-        
+
+        // Form submission handling
+        function setupFormHandlers() {
+            // Set up form submission
+            document.getElementById('notify-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const location = document.getElementById('location').value.trim();
+                
+                if (name && email && phone && location && validateEmail(email)) {
+                    // Send email notification
+                    sendEmailNotification(name, email, phone, location);
+                    
+                    // Show thank you modal
+                    document.getElementById('thank-you-modal').style.display = 'flex';
+                    
+                    // Reset the form
+                    document.getElementById('notify-form').reset();
+                } else {
+                    alert("Please fill in all required fields with valid information.");
+                }
+            });
+            
+            // Modal controls
+            document.querySelector('.close-modal').addEventListener('click', function() {
+                document.getElementById('thank-you-modal').style.display = 'none';
+            });
+            
+            document.getElementById('continue-playing').addEventListener('click', function() {
+                document.getElementById('thank-you-modal').style.display = 'none';
+            });
+            
+            // Toggle registration form
+            document.getElementById('register-button').addEventListener('click', function() {
+                // Scroll to the registration form
+                const formElement = document.querySelector('.signup-form');
+                formElement.scrollIntoView({ behavior: 'smooth' });
+                
+                // Highlight the form
+                formElement.style.animation = 'none';
+                setTimeout(() => {
+                    formElement.style.animation = 'highlight-form 1.5s';
+                }, 10);
+            });
+        }
+
+        // Email validation helper
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Function to send email notification
+        function sendEmailNotification(name, email, phone, location) {
+            // Store the submission data in localStorage
+            const timestamp = new Date().toISOString();
+            const submission = {
+                name: name,
+                email: email,
+                phone: phone,
+                location: location,
+                timestamp: timestamp
+            };
+            
+            // Get existing submissions or initialize empty array
+            let submissions = [];
+            const storedSubmissions = localStorage.getItem('blueminsSubmissions');
+            if (storedSubmissions) {
+                submissions = JSON.parse(storedSubmissions);
+            }
+            
+            // Add new submission
+            submissions.push(submission);
+            
+            // Save back to localStorage
+            localStorage.setItem('blueminsSubmissions', JSON.stringify(submissions));
+            
+            // Add a button to export data if it doesn't exist
+            if (!document.getElementById('export-data')) {
+                const exportButton = document.createElement('button');
+                exportButton.id = 'export-data';
+                exportButton.textContent = 'Export Registration Data';
+                exportButton.style.position = 'fixed';
+                exportButton.style.bottom = '80px';
+                exportButton.style.right = '20px';
+                exportButton.style.zIndex = '100';
+                exportButton.style.padding = '10px';
+                exportButton.style.backgroundColor = '#005588';
+                exportButton.style.color = 'white';
+                exportButton.style.border = 'none';
+                exportButton.style.borderRadius = '5px';
+                exportButton.style.cursor = 'pointer';
+                
+                exportButton.addEventListener('click', function() {
+                    exportRegistrationData();
+                });
+                
+                document.body.appendChild(exportButton);
+            }
+            
+            console.log("Submission saved:", submission);
+            console.log("Total registrations:", submissions.length);
+        }
+
+        // Function to export registration data
+        function exportRegistrationData() {
+            const storedSubmissions = localStorage.getItem('blueminsSubmissions');
+            if (!storedSubmissions) {
+                alert('No registration data found.');
+                return;
+            }
+            
+            const submissions = JSON.parse(storedSubmissions);
+            
+            // Format as CSV
+            let csvContent = 'Name,Email,Phone,Location,Timestamp\n';
+            submissions.forEach(sub => {
+                csvContent += `"${sub.name}","${sub.email}","${sub.phone}","${sub.location}","${sub.timestamp}"\n`;
+            });
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'bluemins_registrations.csv');
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
         // Handle window resize
         window.addEventListener('resize', () => {
             location.reload();
         });
-        
-        // Initialize the game
+
+        // Initialize the game when document is loaded
         document.addEventListener('DOMContentLoaded', initGame);
     </script>
 </body>
