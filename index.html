@@ -277,6 +277,48 @@
             font-size: 0.85rem;
         }
         
+        .radio-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .radio-group input {
+            width: auto;
+            margin-right: 5px;
+        }
+        
+        .radio-group label {
+            display: inline;
+            font-size: 0.9rem;
+            margin-right: 15px;
+        }
+        
+        .opt-in-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: rgba(0, 10, 30, 0.6);
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            text-align: left;
+        }
+        
+        .opt-in-section .opt-in-text {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        
+        .opt-in-section a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        
+        .opt-in-section a:hover {
+            text-decoration: underline;
+        }
+        
         button {
             padding: 12px 30px;
             font-size: 1.1rem;
@@ -515,7 +557,7 @@
             <div id="player"></div>
             <div id="score-display">Score: 0</div>
             <div id="info-display">Move to catch water drops!</div>
-            <button id="register-button" class="floating-button">Register Now</button>
+            <button id="register-button" class="floating-button">Sign Up</button>
         </div>
     </div> <!-- End game-container -->
     
@@ -571,10 +613,29 @@
                         <input type="checkbox" id="terms" name="terms" required>
                         <label for="terms">I agree to receive updates about Bluemins products</label>
                     </div>
+                    
+                    <!-- Opt-in notification section -->
+                    <div class="opt-in-section">
+                        <div class="opt-in-text">
+                            I hereby authorise to send notifications via SMS, Email, RCS and others as per 
+                            <a href="#" target="_blank">Terms of Service</a> | <a href="#" target="_blank">Privacy Policy</a>.
+                        </div>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" id="opt-in-yes" name="notification-consent" value="yes" required>
+                                Yes
+                            </label>
+                            <label>
+                                <input type="radio" id="opt-in-no" name="notification-consent" value="no" required>
+                                No
+                            </label>
+                        </div>
+                    </div>
+                    
                     <input type="hidden" name="_subject" value="New Bluemins Registration">
                     <input type="hidden" name="_replyto" value="contact@bluemins.life">
                     <input type="hidden" name="_next" value="https://bluemins.github.io/bluemins/thanks-page.html">
-                    <button type="submit" id="notify-button">Register for Updates</button>
+                    <button type="submit" id="notify-button">Submit</button>
                 </form>
             </div>
             
@@ -806,25 +867,45 @@
         // Form submission handling
         function setupFormHandlers() {
             // Set up form submission
-            document.getElementById('notify-form').addEventListener('submit', function(e) {
+            document.getElementById('notify-form').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const name = document.getElementById('name').value.trim();
                 const email = document.getElementById('email').value.trim();
                 const phone = document.getElementById('phone').value.trim();
                 const location = document.getElementById('location').value.trim();
+                const notificationConsent = document.querySelector('input[name="notification-consent"]:checked');
                 
-                if (name && email && phone && location && validateEmail(email)) {
-                    // Send email notification
-                    sendEmailNotification(name, email, phone, location);
+                if (name && email && phone && location && validateEmail(email) && notificationConsent) {
+                    // Disable submit button to prevent double submission
+                    const submitButton = document.getElementById('notify-button');
+                    const originalText = submitButton.textContent;
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Submitting...';
                     
-                    // Show thank you modal
-                    document.getElementById('thank-you-modal').style.display = 'flex';
-                    
-                    // Reset the form
-                    document.getElementById('notify-form').reset();
+                    try {
+                        // Call REST API hook
+                        await callRestAPIHook(name, email, phone, location, notificationConsent.value);
+                        
+                        // Send email notification (local storage)
+                        sendEmailNotification(name, email, phone, location, notificationConsent.value);
+                        
+                        // Show thank you modal
+                        document.getElementById('thank-you-modal').style.display = 'flex';
+                        
+                        // Reset the form
+                        document.getElementById('notify-form').reset();
+                        
+                    } catch (error) {
+                        console.error('API submission failed:', error);
+                        alert('Registration failed. Please try again or contact support.');
+                    } finally {
+                        // Re-enable submit button
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalText;
+                    }
                 } else {
-                    alert("Please fill in all required fields with valid information.");
+                    alert("Please fill in all required fields with valid information and select your notification preference.");
                 }
             });
             
@@ -851,6 +932,41 @@
             });
         }
 
+        // REST API Hook function
+        async function callRestAPIHook(name, email, phone, location, notificationConsent) {
+            // Replace with your actual REST API endpoint
+            const API_ENDPOINT = 'https://primary-production-e3d5.up.railway.app/c9e8e87f-4aa2-4dc9-8c00-e0ec3b718c0e/webhook/c9e8e87f-4aa2-4dc9-8c00-e0ec3b718c0e';
+            
+            const requestData = {
+                name: name,
+                email: email,
+                phone: phone,
+                location: location,
+                notificationConsent: notificationConsent,
+                timestamp: new Date().toISOString(),
+                source: 'bluemins-website'
+            };
+            
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Add any required headers (API keys, authorization, etc.)
+                    // 'Authorization': 'Bearer your-token-here',
+                    // 'X-API-Key': 'your-api-key-here'
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`API request failed with status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log('API Response:', result);
+            return result;
+        }
+
         // Email validation helper
         function validateEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -858,7 +974,7 @@
         }
 
         // Function to send email notification
-        function sendEmailNotification(name, email, phone, location) {
+        function sendEmailNotification(name, email, phone, location, notificationConsent) {
             // Store the submission data in localStorage
             const timestamp = new Date().toISOString();
             const submission = {
@@ -866,6 +982,7 @@
                 email: email,
                 phone: phone,
                 location: location,
+                notificationConsent: notificationConsent,
                 timestamp: timestamp
             };
             
@@ -920,9 +1037,9 @@
             const submissions = JSON.parse(storedSubmissions);
             
             // Format as CSV
-            let csvContent = 'Name,Email,Phone,Location,Timestamp\n';
+            let csvContent = 'Name,Email,Phone,Location,Notification Consent,Timestamp\n';
             submissions.forEach(sub => {
-                csvContent += `"${sub.name}","${sub.email}","${sub.phone}","${sub.location}","${sub.timestamp}"\n`;
+                csvContent += `"${sub.name}","${sub.email}","${sub.phone}","${sub.location}","${sub.notificationConsent || 'N/A'}","${sub.timestamp}"\n`;
             });
             
             // Create download link
@@ -946,4 +1063,4 @@
         document.addEventListener('DOMContentLoaded', initGame);
     </script>
 </body>
-</html>
+</html> 
