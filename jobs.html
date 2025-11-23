@@ -111,7 +111,32 @@
         .salary {
             color: var(--accent-color);
         }
+/* --- Footer Styles --- */
+footer {
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 20px;
+    border-top: 1px solid var(--secondary-color);
+}
 
+    /* Style for the Contact Inquiry text */
+    .footer-contact-info {
+        /* Change this value to your desired font size */
+        font-size: 1.2rem; 
+        
+        /* Optional: Make it bold for emphasis */
+        font-weight: bold; 
+        
+        /* Optional: Change color to the accent blue */
+        color: var(--accent-color); 
+    }
+    
+    /* Style for the Copyright text (optional) */
+    .footer-copyright {
+        font-size: 0.85rem;
+        color: #99aaff;
+        margin-bottom: 5px;
+    }
         /* Responsive adjustments for smaller screens */
         @media (max-width: 1000px) {
             .job-table, .job-table tbody, .job-table thead, .job-table th, .job-table td, .job-table tr {
@@ -276,10 +301,10 @@
         
     </tbody>
 </table>
-        
         <footer>
-            <p>&copy; 2025 Bluemins. All Rights Reserved. For job application inquiries, please send your resume to contact contact@bluemins.life</p>
-        </footer>
+            <p class="footer-contact-info">For job application inquiries, please send your resume to contact@bluemins.life</p>
+            <p class="footer-copyright">&copy; 2025 Bluemins. All Rights Reserved.</p>
+    </footer>
     </div>
 </body>
 </html>
