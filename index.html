@@ -478,7 +478,15 @@
             z-index: 20;
             padding: 20px 0;
         }
-        
+		/* New style for the Jobs Button to position it correctly */
+		.jobs-button {
+			right: 170px; /* Position it to the left of the Sign Up button */
+		}
+
+		/* Ensure Sign Up button keeps its original position */
+		#register-button {
+			right: 20px; /* Original position */
+		}
         @media (max-width: 768px) {
             #hero-content h1 {
                 font-size: 2.5rem;
@@ -557,6 +565,7 @@
             <div id="player"></div>
             <div id="score-display">Score: 0</div>
             <div id="info-display">Move to catch water drops!</div>
+			<a href="jobs.html" id="jobs-button" class="floating-button jobs-button">Open Positions</a>
             <button id="register-button" class="floating-button">Sign Up</button>
         </div>
     </div> <!-- End game-container -->
