@@ -14,6 +14,8 @@
             --card-bg: rgba(0, 18, 40, 0.75);
             --border-glow: rgba(0, 170, 255, 0.25);
             --gold: #ffd700;
+            --whatsapp: #25d366;
+            --whatsapp-hover: #128c7e;
         }
 
         body {
@@ -36,7 +38,7 @@
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1150px;
             margin: 0 auto;
             padding: 40px 20px 80px;
         }
@@ -191,11 +193,11 @@
             background: var(--card-bg);
             border: 1px solid var(--border-glow);
             border-radius: 14px;
-            padding: 24px 28px;
+            padding: 22px 26px;
             display: grid;
-            grid-template-columns: 240px 1fr auto;
+            grid-template-columns: 220px 1fr auto;
             align-items: center;
-            gap: 25px;
+            gap: 20px;
             transition: all 0.3s ease;
             backdrop-filter: blur(8px);
         }
@@ -218,7 +220,7 @@
         }
 
         .tier-identity .count {
-            font-size: 1.9rem;
+            font-size: 1.8rem;
             font-weight: 900;
             color: #fff;
             line-height: 1.1;
@@ -240,7 +242,7 @@
         .reward-badge {
             background: rgba(0, 170, 255, 0.12);
             border: 1px solid var(--accent-color);
-            padding: 8px 16px;
+            padding: 8px 14px;
             border-radius: 20px;
             font-size: 0.85rem;
             display: inline-flex;
@@ -256,11 +258,16 @@
             color: var(--gold);
         }
 
-        .book-btn {
-            background: var(--primary-color);
-            color: #ffffff;
+        /* Action Buttons Wrapper */
+        .tier-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn {
             text-decoration: none;
-            padding: 12px 22px;
+            padding: 10px 16px;
             border-radius: 8px;
             font-weight: 700;
             font-size: 0.85rem;
@@ -269,13 +276,30 @@
             gap: 8px;
             white-space: nowrap;
             transition: 0.3s;
-            box-shadow: 0 0 12px rgba(0, 136, 204, 0.4);
         }
 
-        .book-btn:hover {
+        .action-btn.whatsapp {
+            background: var(--whatsapp);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(37, 211, 102, 0.35);
+        }
+
+        .action-btn.whatsapp:hover {
+            background: var(--whatsapp-hover);
+            transform: scale(1.05);
+            box-shadow: 0 0 18px rgba(37, 211, 102, 0.6);
+        }
+
+        .action-btn.call {
+            background: var(--primary-color);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(0, 136, 204, 0.35);
+        }
+
+        .action-btn.call:hover {
             background: var(--accent-color);
             transform: scale(1.05);
-            box-shadow: 0 0 20px var(--accent-color);
+            box-shadow: 0 0 18px var(--accent-color);
         }
 
         /* Terms & Notes Section */
@@ -312,13 +336,28 @@
             letter-spacing: 1px;
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 950px) {
             .tier-card {
                 grid-template-columns: 1fr;
                 gap: 15px;
             }
-            .book-btn {
+            .tier-actions {
+                width: 100%;
+                justify-content: stretch;
+            }
+            .action-btn {
+                flex: 1;
                 justify-content: center;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .tier-actions {
+                flex-direction: column;
+            }
+            .action-btn {
+                width: 100%;
+                box-sizing: border-box;
             }
         }
     </style>
@@ -393,7 +432,10 @@
                     <span class="reward-badge"><i class="fas fa-box-open"></i> 5 Free Boxes (1L)</span>
                     <span class="reward-badge gift"><i class="fas fa-umbrella"></i> 1 Umbrella</span>
                 </div>
-                <a href="tel:+917090443303" class="book-btn"><i class="fas fa-phone-alt"></i> Book Tier 1</a>
+                <div class="tier-actions">
+                    <a href="https://wa.me/916371470189?text=Hi%20Bluemins%20Team%2C%20I%20want%20to%20book%20Tier%201%20Scheme%20(300%20Boxes%20with%205%20Free%201L%20Boxes%20%2B%201%20Umbrella).%20Please%20guide%20me%20with%20the%20order." target="_blank" class="action-btn whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    <a href="tel:+91916371470189" class="action-btn call"><i class="fas fa-phone-alt"></i> Call</a>
+                </div>
             </div>
 
             <!-- Tier 2 -->
@@ -408,7 +450,10 @@
                     <span class="reward-badge gift"><i class="fas fa-umbrella"></i> 1 Umbrella</span>
                     <span class="reward-badge gift"><i class="fas fa-bed"></i> 1 Bedsheet</span>
                 </div>
-                <a href="tel:+917090443303" class="book-btn"><i class="fas fa-phone-alt"></i> Book Tier 2</a>
+                <div class="tier-actions">
+                    <a href="https://wa.me/916371470189?text=Hi%20Bluemins%20Team%2C%20I%20want%20to%20book%20Tier%202%20Scheme%20(600%20Boxes%20with%2012%20Free%201L%20Boxes%20%2B%201%20Umbrella%20%2B%201%20Bedsheet).%20Please%20guide%20me%20with%20the%20order." target="_blank" class="action-btn whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    <a href="tel:+916371470189" class="action-btn call"><i class="fas fa-phone-alt"></i> Call</a>
+                </div>
             </div>
 
             <!-- Tier 3 -->
@@ -423,7 +468,10 @@
                     <span class="reward-badge gift"><i class="fas fa-umbrella"></i> 1 Umbrella</span>
                     <span class="reward-badge gift"><i class="fas fa-fan"></i> 1 Fan</span>
                 </div>
-                <a href="tel:+917090443303" class="book-btn"><i class="fas fa-phone-alt"></i> Book Tier 3</a>
+                <div class="tier-actions">
+                    <a href="https://wa.me/916371470189?text=Hi%20Bluemins%20Team%2C%20I%20want%20to%20book%20Tier%203%20Scheme%20(1000%20Boxes%20with%2025%20Free%201L%20Boxes%20%2B%201%20Umbrella%20%2B%201%20Fan).%20Please%20guide%20me%20with%20the%20order." target="_blank" class="action-btn whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    <a href="tel:+916371470189" class="action-btn call"><i class="fas fa-phone-alt"></i> Call</a>
+                </div>
             </div>
 
             <!-- Tier 4 -->
@@ -438,7 +486,10 @@
                     <span class="reward-badge gift"><i class="fas fa-umbrella"></i> 1 Umbrella</span>
                     <span class="reward-badge gift"><i class="fas fa-blender"></i> 1 Mixer Grinder</span>
                 </div>
-                <a href="tel:+917090443303" class="book-btn"><i class="fas fa-phone-alt"></i> Book Tier 4</a>
+                <div class="tier-actions">
+                    <a href="https://wa.me/916371470189?text=Hi%20Bluemins%20Team%2C%20I%20want%20to%20book%20Tier%204%20Scheme%20(1200%20Boxes%20with%2030%20Free%201L%20Boxes%20%2B%201%20Umbrella%20%2B%201%20Mixer%20Grinder).%20Please%20guide%20me%20with%20the%20order." target="_blank" class="action-btn whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    <a href="tel:+916371470189" class="action-btn call"><i class="fas fa-phone-alt"></i> Call</a>
+                </div>
             </div>
 
             <!-- Tier 5 -->
@@ -452,7 +503,10 @@
                     <span class="reward-badge"><i class="fas fa-box-open"></i> 50 Free Boxes (1L)</span>
                     <span class="reward-badge gift"><i class="fas fa-umbrella"></i> 1 Umbrella</span>
                 </div>
-                <a href="tel:+917090443303" class="book-btn"><i class="fas fa-phone-alt"></i> Book Tier 5</a>
+                <div class="tier-actions">
+                    <a href="https://wa.me/919937770349?text=Hi%20Bluemins%20Team%2C%20I%20want%20to%20book%20Tier%205%20Scheme%20(1500%20Boxes%20with%2050%20Free%201L%20Boxes%20%2B%201%20Umbrella).%20Please%20guide%20me%20with%20the%20order." target="_blank" class="action-btn whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    <a href="tel:+919937770349" class="action-btn call"><i class="fas fa-phone-alt"></i> Call</a>
+                </div>
             </div>
 
             <!-- Tier 6 -->
@@ -466,7 +520,10 @@
                     <span class="reward-badge gift"><i class="fas fa-umbrella"></i> 1 Umbrella</span>
                     <span class="reward-badge gift"><i class="fas fa-wind"></i> 1 Cooler Fan</span>
                 </div>
-                <a href="tel:+917090443303" class="book-btn"><i class="fas fa-phone-alt"></i> Book Tier 6</a>
+                <div class="tier-actions">
+                    <a href="https://wa.me/919937770349?text=Hi%20Bluemins%20Team%2C%20I%20want%20to%20book%20Tier%206%20Scheme%20(1800%20Boxes%20with%201%20Umbrella%20%2B%201%20Cooler%20Fan).%20Please%20guide%20me%20with%20the%20order." target="_blank" class="action-btn whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    <a href="tel:+919937770349" class="action-btn call"><i class="fas fa-phone-alt"></i> Call</a>
+                </div>
             </div>
 
             <!-- Tier 7 -->
@@ -480,7 +537,10 @@
                     <span class="reward-badge gift"><i class="fas fa-umbrella"></i> 1 Umbrella</span>
                     <span class="reward-badge gift" style="background: rgba(255, 215, 0, 0.2);"><i class="fas fa-tv"></i> 32" Smart TV</span>
                 </div>
-                <a href="tel:+917090443303" class="book-btn" style="background: var(--gold); color: #000a1a;"><i class="fas fa-phone-alt"></i> Claim Mega Tier</a>
+                <div class="tier-actions">
+                    <a href="https://wa.me/919937770349?text=Hi%20Bluemins%20Team%2C%20I%20want%20to%20claim%20the%20Mega%20Tier%207%20Scheme%20(2000%20Boxes%20with%201%20Umbrella%20%2B%2032%22%20Smart%20TV).%20Please%20connect%20with%20me%20for%20dispatch." target="_blank" class="action-btn whatsapp" style="box-shadow: 0 0 15px rgba(37, 211, 102, 0.5);"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    <a href="tel:+919937770349" class="action-btn call" style="background: var(--gold); color: #000a1a;"><i class="fas fa-phone-alt"></i> Call</a>
+                </div>
             </div>
         </div>
 
